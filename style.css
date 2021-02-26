@@ -32,7 +32,9 @@
 .formula-container {
   margin: 10px;
   min-height: 300px;
-  width: 70%;
+  max-width: 400px;
+  min-width: 300px;
+  width: 50%;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   display: flex;
@@ -74,6 +76,8 @@
   flex: 1;
   font-size: 1rem;
   height: 1rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .formula-container input {
