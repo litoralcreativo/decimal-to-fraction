@@ -33,7 +33,7 @@ inputDecimal.oninput = function () {
     arr[0] + arr[1] + arr[2] == "" ? 0 : arr[0] + arr[1] + arr[2]
   );
   let n2 = parseInt(arr[0] + arr[1] == "" ? 0 : arr[0] + arr[1]);
-  let d2 = 1;
+  let d2 = "";
   if (arr[1]) {
     if (arr[2]) {
       d2 = strToNum(arr[1].length, 0);
@@ -47,7 +47,7 @@ inputDecimal.oninput = function () {
   }
   let numerador = n1 == n2 ? n1 : n1 - n2;
   let denominador = d1 ? d1 + d2 : d2 == 1 ? 1 : d2;
-
+  denominador = denominador == "" ? 1 : denominador;
   console.log("numerador: " + numerador);
   console.log("denominador: " + denominador);
   console.log("resultado: " + numerador / denominador);
