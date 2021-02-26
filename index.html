@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="main-container">
+      <h1>Decimal a fracción</h1>
+      <div id="decimalToFraction" class="formula-container">
+        <div class="formula-content-item">
+          <p>escribir el numero decimal</p>
+        </div>
+        <div class="formula-content-item">
+          <input type="number" id="inputDecimal" />
+        </div>
+        <div class="formula-content-item">
+          <div class="fci-container" id="wholeText"></div>
+          <div class="fci-container" id="decimalText"></div>
+          <div class="fci-container" id="periodText"></div>
+        </div>
+        <!-- <div class="btn">decimal to fraccion</div> -->
+
+        <div class="formula-content-item fill">
+          <h2 class="fraction" id="numeradorText"></h2>
+          <h2 class="fraction" id="denominadorText"></h2>
+        </div>
+      </div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
