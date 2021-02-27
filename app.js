@@ -22,7 +22,7 @@ inputDecimal.oninput = function () {
     }
   }
 
-  console.clear();
+  // console.clear();
   if (period) _period = exec(decimal, periodExp);
   let arr = [];
   arr.push(whole ? whole : "");
@@ -48,9 +48,14 @@ inputDecimal.oninput = function () {
   let numerador = n1 == n2 ? n1 : n1 - n2;
   let denominador = d1 ? d1 + d2 : d2 == 1 ? 1 : d2;
   denominador = denominador == "" ? 1 : denominador;
-  console.log("numerador: " + numerador);
-  console.log("denominador: " + denominador);
-  console.log("resultado: " + numerador / denominador);
+
+  let nu = parseInt(numerador);
+  let de = parseInt(denominador);
+  let nuFac = nu == 0 ? [0] : nu == 1 ? [1] : factor(nu);
+  let deFac = de == 0 ? [0] : de == 1 ? [1] : factor(de);
+
+  let numeFacText = arrToStr(nuFac, "*");
+  let denoFacText = arrToStr(deFac, "*");
 
   // escribir
   wholeText.innerHTML = whole ? arr[0] : "";
@@ -58,6 +63,34 @@ inputDecimal.oninput = function () {
   periodText.innerHTML = period ? arr[2] : "";
   numeradorText.innerHTML = numerador;
   denominadorText.innerHTML = denominador;
+
+  addFactorText(numeradorTextFactor, nuFac);
+  addFactorText(denominadorTextFactor, deFac);
+};
+
+const addFactorText = (domElement, arr) => {
+  while (domElement.firstChild) {
+    domElement.firstChild.remove();
+  }
+  let occ = occurency(arr);
+  for (let i = 0; i < occ[0].length; i++) {
+    var p = document.createElement("p");
+    p.innerHTML = occ[0][i];
+    // si tiene exponente mayor a 1
+    if (occ[1][i] > 1) {
+      var sup = document.createElement("sup");
+      sup.innerHTML = occ[1][i];
+      sup.style = "font-size: 0.8rem";
+      p.appendChild(sup);
+    }
+    domElement.appendChild(p);
+
+    if (i < occ[0].length - 1) {
+      let asterisco = document.createElement("p");
+      asterisco.innerHTML = " · ";
+      domElement.appendChild(asterisco);
+    }
+  }
 };
 
 const exec = (s, r) => {
@@ -74,4 +107,41 @@ const strToNum = (num, dig) => {
     str = str + dig;
   }
   return str;
+};
+
+const factor = (number, values = []) => {
+  let counter = 2;
+  while (number % counter !== 0) {
+    counter++;
+  }
+  values.push(counter);
+  return counter == number ? values : factor(number / counter, values);
+};
+
+const arrToStr = (arr, character = ",") => {
+  let result = "";
+  for (let i = 0; i < arr.length; i++) {
+    const last = arr.length - 1;
+    result = result + arr[i] + (i != last ? " " + character + " " : "");
+  }
+  return result;
+};
+
+const occurency = (arr) => {
+  var a = [],
+    b = [],
+    prev;
+
+  arr.sort();
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] !== prev) {
+      a.push(arr[i]);
+      b.push(1);
+    } else {
+      b[b.length - 1]++;
+    }
+    prev = arr[i];
+  }
+
+  return [a, b];
 };
