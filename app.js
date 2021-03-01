@@ -3,6 +3,11 @@ inputDecimal.oninput = function () {
   let decimal;
   let period;
   let value = inputDecimal.value;
+  let negative = false;
+  if (value < 0) {
+    negative = true;
+  }
+  value = Math.abs(value).toString();
   const wholeExp = /\-?\d+/gi;
   const decimalExp = /\.(\d+)/gi;
   if (value.match(wholeExp)) whole = value.match(wholeExp)[0];
@@ -22,7 +27,6 @@ inputDecimal.oninput = function () {
     }
   }
 
-  // console.clear();
   if (period) _period = exec(decimal, periodExp);
   let arr = [];
   arr.push(whole ? whole : "");
@@ -49,13 +53,44 @@ inputDecimal.oninput = function () {
   let denominador = d1 ? d1 + d2 : d2 == 1 ? 1 : d2;
   denominador = denominador == "" ? 1 : denominador;
 
+  // get the number
   let nu = parseInt(numerador);
   let de = parseInt(denominador);
-  let nuFac = nu == 0 ? [0] : nu == 1 ? [1] : factor(nu);
-  let deFac = de == 0 ? [0] : de == 1 ? [1] : factor(de);
 
-  let numeFacText = arrToStr(nuFac, "*");
-  let denoFacText = arrToStr(deFac, "*");
+  let mcd = 1;
+
+  if (value != 0) {
+    mainTermn.style = "opacity: 1;";
+  } else {
+    mainTermn.style = "opacity: 0;";
+    facTermn.style = "opacity: 0;";
+    simpleTermn.style = "opacity: 0;";
+  }
+
+  if (nu >= 2 && de >= 2) {
+    mcd = mcd_var([nu, de]);
+    if (mcd > 1) {
+      // get a factorized array of the number
+      let nuFac = nu == 0 ? [0] : nu == 1 ? [1] : factor(nu);
+      let deFac = de == 0 ? [0] : de == 1 ? [1] : factor(de);
+
+      // get a string for the DOM element
+      let numeFacText = arrToStr(nuFac, "*");
+      let denoFacText = arrToStr(deFac, "*");
+
+      // add text
+      addFactorText(numeradorTextFactor, nuFac);
+      addFactorText(denominadorTextFactor, deFac);
+      numeradorTextSimple.innerHTML = nu / mcd;
+      denominadorTextSimple.innerHTML = de / mcd;
+
+      facTermn.style = "opacity: 1;";
+      simpleTermn.style = "opacity: 1;";
+    } else {
+      facTermn.style = "opacity: 0;";
+      simpleTermn.style = "opacity: 0;";
+    }
+  }
 
   // escribir
   wholeText.innerHTML = whole ? arr[0] : "";
@@ -63,9 +98,6 @@ inputDecimal.oninput = function () {
   periodText.innerHTML = period ? arr[2] : "";
   numeradorText.innerHTML = numerador;
   denominadorText.innerHTML = denominador;
-
-  addFactorText(numeradorTextFactor, nuFac);
-  addFactorText(denominadorTextFactor, deFac);
 };
 
 const addFactorText = (domElement, arr) => {
@@ -128,11 +160,11 @@ const arrToStr = (arr, character = ",") => {
 };
 
 const occurency = (arr) => {
-  var a = [],
+  let a = [],
     b = [],
     prev;
 
-  arr.sort();
+  arr.sort((a, b) => a > b);
   for (var i = 0; i < arr.length; i++) {
     if (arr[i] !== prev) {
       a.push(arr[i]);
@@ -144,4 +176,83 @@ const occurency = (arr) => {
   }
 
   return [a, b];
+};
+
+const occurency_var = (arrOfObj, nums) => {
+  let arr = [];
+  arrOfObj.forEach((element) => {
+    arr.push(element.fac);
+  });
+  let ocurr = occurency(arr);
+  let result = [];
+  for (let i = 0; i < ocurr[1].length; i++) {
+    if (ocurr[1][i] == nums) result.push(ocurr[0][i]);
+  }
+  return result;
+};
+
+const mcd_var = (numbers) => {
+  // se factoriza cada numero y se lo guarda en un array
+  let facArr = [];
+  numbers.forEach((element) => {
+    facArr.push(factor(element));
+  });
+  // console.log(facArr);
+
+  // se toma el numero de ocurrencias de cada factor para cada numero
+  let occurArr = [];
+  facArr.forEach((element) => {
+    occurArr.push(occurency(element));
+  });
+  // console.log(occurArr);
+
+  // se agrupan todos los factores y ocurrencias en un único array
+  let factorOcc = [];
+  for (let i = 0; i < occurArr.length; i++) {
+    for (let j = 0; j < occurArr[i][0].length; j++) {
+      const fac = occurArr[i][0][j];
+      const ocu = occurArr[i][1][j];
+      const obj = { fac: fac, occ: ocu };
+      factorOcc.push(obj);
+    }
+  }
+  factorOcc.sort((a, b) => (a.fac > b.fac ? 1 : b.fac > a.fac ? -1 : 0));
+  // console.log(factorOcc);
+
+  // se filtran los factores para obtener cuales son divisores comunes
+  const commons = occurency_var(factorOcc, numbers.length);
+  // console.log(commons);
+
+  // se filtra el array que contiene todos los factores
+  // y sus ocurrencias en función de los divisores comúnes
+  let midRes = [];
+  for (let i = 0; i < factorOcc.length; i++) {
+    // solo si el valor es un divisor comun
+    if (commons.includes(factorOcc[i].fac)) {
+      const fac = factorOcc[i].fac;
+      const ocu = factorOcc[i].occ;
+      if (midRes.find((x) => x.fac == fac) == undefined) {
+        const obj = { fac: fac, occ: ocu };
+        midRes.push(obj);
+      }
+      // se coteja si el divisor iterado actual es menor al último añadido y se remplaza
+      // para asi tomar solo los justos y necesarios..
+      if (midRes.find((x) => x.fac == fac).occ > ocu) {
+        const indexToPop = midRes.indexOf(midRes.find((x) => x.fac == fac));
+        midRes.splice(indexToPop, 1);
+        const newObj = { fac: fac, occ: ocu };
+        midRes.push(newObj);
+      }
+    }
+  }
+  // paso opciona, ordenado de mayor a menor
+  midRes.sort((a, b) => (a.fac > b.fac ? 1 : b.fac > a.fac ? -1 : 0));
+
+  let result = 1;
+
+  // se obtiene el resultado con los factores finales y sus ocurrencias
+  midRes.forEach((element) => {
+    result *= Math.pow(element.fac, element.occ);
+  });
+  return result;
 };
